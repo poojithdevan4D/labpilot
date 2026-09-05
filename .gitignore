@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+labpilot.toml
+labpilot/memory/
+labpilot/work/

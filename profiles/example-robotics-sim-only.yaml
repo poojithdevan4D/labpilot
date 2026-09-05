@@ -1,0 +1,56 @@
+# A deliberately DIFFERENT field, to test that the engine carries no hidden
+# assumptions about quantization. Nothing here mentions bits, models or GPUs
+# in the same way; the constraints are about hardware access and simulators.
+name: "University robotics lab, simulation only, no physical robot"
+field: "robot learning / manipulation"
+
+hardware:
+  gpus: 2
+  vram_gb: 24
+  gpu_name: "RTX 4090"
+  # This lab trains policies; throughput is in environment steps, not tokens.
+  train_tokens_per_sec: 20000     # env steps/sec, reused as the budget unit
+  cloud_available: false
+
+budgets:
+  max_wall_clock_hours: 72
+  max_gpu_count: 4
+
+licences:
+  forbidden: ["CC-BY-NC", "non-commercial", "research only"]
+  preferred: ["MIT", "Apache-2.0", "BSD-3"]
+  reason: "Lab policy: released code must be reusable by industry collaborators."
+
+regime:
+  allowed: ["simulation", "sim-to-real", "offline RL", "imitation learning"]
+  forbidden:
+    - id: real_robot_required
+      match: ["real robot experiments", "physical robot", "real-world rollouts",
+              "hardware experiments on the robot"]
+      reason: "No physical robot. Results requiring on-hardware rollouts cannot be reproduced here."
+    - id: human_teleoperation
+      match: ["human teleoperation", "teleoperated demonstrations", "human demonstrations collected"]
+      reason: "No teleop rig and no operator time."
+    - id: massive_rl
+      match: ["reinforcement learning"]
+      only_if_tokens_above: 1_000_000_000     # env steps
+      reason: ">1B env steps is over a week on 2 GPUs."
+
+closed_questions:
+  - id: proprietary_sim
+    match: ["Isaac Gym", "IsaacGym", "MuJoCo Pro", "proprietary simulator"]
+    exclude_if: ["PyBullet", "Gymnasium", "open-source simulator", "MuJoCo 3"]
+    verdict: "not available to us"
+    evidence: "Lab standardised on PyBullet/Gymnasium; no Isaac licence or NVIDIA Omniverse access."
+
+interests:
+  strong: ["manipulation", "sim-to-real", "offline reinforcement learning",
+           "imitation learning", "grasping"]
+  weak: ["diffusion policy", "transformer policy", "benchmark", "generalization"]
+
+metrics:
+  decides: "success rate on held-out object instances"
+  explains: ["episode return", "sample efficiency", "wall-clock"]
+  distrusted:
+    - metric: "episode return"
+      reason: "Return is reward-shaping dependent and not comparable across papers."

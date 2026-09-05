@@ -1,0 +1,75 @@
+# EXAMPLE PROFILE — a fictional lab, for illustration only.
+#
+# Nothing here is a real measurement. Every `evidence:` and `reason:` string is
+# a placeholder showing the SHAPE of a good entry. Replace them with your own
+# numbers before trusting a single verdict — those strings are shown to whoever
+# reads the output, so borrowed evidence produces unconvincing triage.
+#
+# Scenario: a two-person group compressing open language models to run on one
+# consumer GPU. Common situation, made-up specifics.
+name: "EXAMPLE — small group, one consumer GPU, post-training methods only"
+field: "LLM quantization"
+
+hardware:
+  gpus: 1
+  vram_gb: 24
+  gpu_name: "consumer 24GB card"
+  host_ram_gb: 64
+  # How fast you actually train, in whatever unit your field counts. Used to
+  # turn a paper's stated budget into YOUR wall-clock.
+  # MEASURE THIS. A guess here makes every cost verdict a guess.
+  train_tokens_per_sec: 5000
+  cloud_available: false
+
+budgets:
+  max_wall_clock_hours: 48
+  max_gpu_count: 1
+
+licences:
+  forbidden: ["CC-BY-NC", "CC BY-NC", "non-commercial", "research only", "GPL-3"]
+  preferred: ["Apache-2.0", "Apache 2", "MIT"]
+  reason: "Output must be releasable; a method we cannot ship is not usable."
+
+regime:
+  allowed: ["post-training quantization", "PTQ", "calibration", "inference"]
+  forbidden:
+    - id: pretraining
+      match: ["pretrain from scratch", "pre-training from scratch", "trained from scratch"]
+      reason: "Training a model from scratch is far outside this group's compute."
+    - id: large_scale_training
+      match: ["quantization-aware training", "QAT"]
+      # A GATE, not a ban: small-scale versions of the same technique stay
+      # allowed. This is usually what you want.
+      only_if_tokens_above: 1_000_000_000
+      reason: "Above ~1B tokens the run no longer fits the time budget."
+
+closed_questions:
+  # Things you have already settled, so they are not investigated again.
+  # PLACEHOLDER EXAMPLES — replace with what YOU have ruled out, and why.
+  - id: activation_quantization
+    # Prefer precise configuration strings over general phrases: "activation
+    # quantization" appears in the motivation of papers that do not do it.
+    match: ["W2A4", "W4A4", "4-bit activation", "A4 quantization"]
+    # Negative evidence. If the paper says one of these, the mention was
+    # discussion, not method. This prevents the commonest false reject.
+    exclude_if: ["A16", "weight-only", "weight only"]
+    verdict: "not pursued here"
+    evidence: "PLACEHOLDER — record what you measured and what it showed."
+  - id: format_mismatch
+    match: ["binarization", "binary neural network", "binary-coding"]
+    exclude_if: ["ternary", "1.58-bit"]
+    verdict: "different format family"
+    evidence: "PLACEHOLDER — binary and ternary formats differ enough that methods rarely transfer."
+
+interests:
+  # Positive signals. These RANK survivors; they never reject anything.
+  strong: ["post-training quantization", "calibration", "low-bit", "GPTQ"]
+  weak: ["mixed precision", "rotation", "outlier", "kernel"]
+
+metrics:
+  decides: "PLACEHOLDER — the one number that decides for you (e.g. downstream task accuracy retained)"
+  explains: ["perplexity", "bits/weight", "tokens/sec", "peak VRAM"]
+  distrusted:
+    # Cheap proxies you have MEASURED not to track what you care about.
+    - metric: perplexity
+      reason: "PLACEHOLDER — record your own evidence before relying on this warning."

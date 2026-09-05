@@ -1,0 +1,21 @@
+# Copy to labpilot.toml and edit. Environment variables override these.
+[box]
+user     = "your-username"
+host     = "192.0.2.10"         # any reachable host: LAN, VPN, or public
+port     = 22
+ssh_keys = ["~/.ssh/id_ed25519"]
+# Where jobs run on the box. Windows paths are fine.
+workdir  = "C:/Users/you/experiments/labpilot-work"
+ollama_exe = "$env:USERPROFILE\\ollama\\ollama.exe"
+
+[model]
+name     = "qwen2.5-coder:14b"  # a coder model beats a general one for this
+vram_mb  = 9900                 # measure it: `ollama ps` after a request
+parallel = 4                    # keep <= OLLAMA_NUM_PARALLEL on the box
+
+[policy]
+# Below this, the GPU counts as idle. A logged-in Windows desktop can hold
+# ~10GB without anyone working, so this is a floor, not the real test —
+# the real test is which processes hold the card.
+idle_ceiling_mb = 1500
+profile = "profiles/my-lab.yaml"

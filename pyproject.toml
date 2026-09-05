@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "labpilot"
+version = "0.1.0"
+description = "Experiments must earn GPU time — an agentic research loop with gates before every run"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+keywords = ["machine-learning", "research", "gpu", "experiment-tracking", "agents", "reproducibility"]
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["pyyaml>=6.0", "paramiko>=3.0", "scp>=0.14"]
+
+[project.optional-dependencies]
+discovery = ["paperfit>=0.1"]
+# torch is needed only to VERIFY generated code locally, not to install labpilot
+verify = ["torch>=2.0"]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools.packages.find]
+include = ["labpilot*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
